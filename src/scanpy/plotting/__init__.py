@@ -12,6 +12,7 @@ from ._anndata import (
     violin,
 )
 from ._dotplot import DotPlot, dotplot
+from ._ridgeplot import RidgePlot, ridgeplot
 from ._matrixplot import MatrixPlot, matrixplot
 from ._preprocessing import filter_genes_dispersion, highly_variable_genes
 from ._qc import highest_expr_genes
@@ -64,6 +65,8 @@ __all__ = [
     "violin",
     "DotPlot",
     "dotplot",
+    "RidgePlot",
+    "ridgeplot",
     "MatrixPlot",
     "matrixplot",
     "filter_genes_dispersion",
