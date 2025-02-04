@@ -48,6 +48,7 @@ class RidgePlot(BasePlot):
         groupby: str | Sequence[str],
         *,
         bandwidth: float,
+        palette,
         use_raw: bool | None = None,
         log: bool = False,
         num_categories: int = 7,
@@ -102,7 +103,11 @@ class RidgePlot(BasePlot):
         else:
             self.ridge_df = ridge_df
 
-        self.cmap = self.cmap = self.DEFAULT_COLORMAP
+        if palette is None:
+            colormap = plt.get_cmap(self.DEFAULT_COLORMAP)
+            self.palette = colormap(np.linspace(0, 1, len(self.group_indices)))
+        else:
+            self.palette = palette
         self.groupby = groupby
         self.bandwidth = bandwidth
 
@@ -113,7 +118,7 @@ class RidgePlot(BasePlot):
                                     ridge_group_indices = self.group_indices,
                                     ridge_groupby = self.groupby,
                                     bandwidth = self.bandwidth,
-                                    cmap = self.cmap)
+                                    palette = self.palette)
 
         return normalize
 
@@ -125,7 +130,7 @@ class RidgePlot(BasePlot):
             ridge_groupby,
             *,
             bandwidth,
-            cmap: str = "Reds",
+            palette,
             color_on: str | None = "dot",
             y_label: str | None = None,
             dot_max: float | None = None,
@@ -146,12 +151,10 @@ class RidgePlot(BasePlot):
 
             tracks = ridge_group_indices.keys()
             ntracks = len(tracks)
-            colormap = plt.get_cmap(cmap)
-            colors = colormap(np.linspace(0, 1, ntracks))
             exprarr = ridge_df.iloc[:,0].to_numpy()
             xmax = exprarr.max()
             head_crop = np.quantile(exprarr, 0.999)
-            ridge_ax.set_prop_cycle('color', colors)
+            ridge_ax.set_prop_cycle('color', palette)
             ridge_ax.set_xlabel("Expression")
             ridge_ax.set_xlim((0,head_crop))
             ridge_ax.set_ylabel(ridge_groupby)
@@ -186,12 +189,12 @@ def ridgeplot(
     groupby: str | Sequence[str],
     *,
     bandwidth: float = 0.1,
+    palette = None,
     use_raw: bool | None = None,
     log: bool = False,
     num_categories: int = 7,
     expression_cutoff: float = 0.0,
     mean_only_expressed: bool = False,
-    cmap: str = "Reds",
     standard_scale: Literal["var", "group"] | None = None,
     title: str | None = None,
     #colorbar_title: str | None = DotPlot.DEFAULT_COLOR_LEGEND_TITLE,
@@ -215,9 +218,9 @@ def ridgeplot(
 ) -> RidgePlot | dict | None:
 
 
-    cmap = kwds.get("color_map", cmap)
-    if "color_map" in kwds:
-        del kwds["color_map"]
+    # cmap = kwds.get("color_map", cmap)
+    # if "color_map" in kwds:
+    #     del kwds["color_map"]
 
     rp = RidgePlot(
         adata,
@@ -243,6 +246,7 @@ def ridgeplot(
         vmax=vmax,
         vcenter=vcenter,
         norm=norm,
+        palette=palette,
         **kwds,
     )
 
